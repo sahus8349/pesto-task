@@ -11,13 +11,13 @@ const Layout = ({ children }: AdminLayoutProps) => {
   const navigationItems = [
     {
       icon: "home",
-      label: "Incidents",
+      label: "Task",
       link: "/",
     },
     {
       icon: "plus",
-      label: "Add Incident",
-      link: "/incident",
+      label: "Add Task",
+      link: "/task",
     }
   ];
 

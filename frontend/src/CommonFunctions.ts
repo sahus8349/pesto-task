@@ -105,7 +105,7 @@ function getCookie(key:string) {
 export const getToken = async () => {
   const state = store.getState();
   let token = state.token.token;
-  return token?token:getCookie("incident_session_token");
+  return token?token:getCookie("task_session_token");
 };
 
 export interface callFetchProps {
@@ -148,7 +148,7 @@ export const callFetch = async ({
     .then(async (res) => res.json())
     .then(async (json) => {
       if(json.message === "Unauthenticated."){
-        document.cookie = "incident_session_token=";
+        document.cookie = "task_session_token=";
       }else{
         return await callback(json);
       }
@@ -193,7 +193,7 @@ export async function logout() {
     },
     controller: "",
     callback: async () => {
-      document.cookie = "incident_session_token=";
+      document.cookie = "task_session_token=";
     },
   });
 }

@@ -21,7 +21,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { executeRecaptcha } = useGoogleReCaptcha();
   
-  const [cookie,setCookie] = useCookies(['incident_session_token']);
+  const [cookie,setCookie] = useCookies(['task_session_token']);
 
   let formData: InputFiled = {
     email: "",

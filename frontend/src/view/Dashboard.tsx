@@ -1,18 +1,18 @@
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button/Button";
 import {
-  fetchIncident,
+  fetchTask,
   fetchEnums,
-  confirmDeleteIncident
-} from "./IncidentFunction";
+  confirmDeleteTask
+} from "./TaskFunction";
 import { FetchData, convertParamsToArr, pushArray } from "../CommonFunctions";
 import { useEffect, useState } from "react";
 import { EmptyData, ErrorAPI500 } from "../components/Errors/Errors";
 import store from "../store";
 import { headerUpdate } from "../Header";
-import IncidentTopbar from "./IncidentTopbar";
+import TaskTopbar from "./TaskTopbar";
 import CustomLoader from "../components/Loader/CustomLoader";
-import moment from 'moment';
+import Tag from "../components/Tags/Tags";
 
 const Dashboard = () => {
   let paramsData:any = useParams();
@@ -23,7 +23,7 @@ const Dashboard = () => {
   const [isLoadingEnums, setIsLoadingEnums] = useState<Boolean>(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMore, setIsLoadMore] = useState<Boolean>(false);
-  const [incidentData, setIncidentData] = useState<FetchData>();
+  const [TaskData, setTaskData] = useState<FetchData>();
   const [enumData, setEnumData] = useState<FetchData>();
   const [params, setParams] = useState(paramsData);
   const [searchInp, setSearchInp] = useState<string>('');
@@ -39,12 +39,12 @@ const Dashboard = () => {
   }, [enumData]);
 
   useEffect(() => {
-    if (incidentData !== undefined) {
+    if (TaskData !== undefined) {
       setIsLoading(false);
     }
 
     setIsLoadMore(false);
-  }, [incidentData]);
+  }, [TaskData]);
 
   useEffect(() => {
     setIsLoadMore(true);
@@ -52,11 +52,11 @@ const Dashboard = () => {
   }, [params]);
 
   useEffect(() => {
-    searchIncidents();
+    searchTasks();
   }, [searchInp]);
 
-  const deleteincident = async (id: BigInteger) => {
-    await confirmDeleteIncident(id, setIncidentData,incidentData);
+  const deleteTask = async (id: BigInteger) => {
+    await confirmDeleteTask(id, setTaskData,TaskData);
   };
 
   const loadEunms = async() => {
@@ -72,21 +72,21 @@ const Dashboard = () => {
       params["page"] = 1;
     }
 
-    const data:FetchData = await fetchIncident(params);
+    const data:FetchData = await fetchTask(params);
 
     if(data.status === "error" && data.error === "abort"){return false;}
     
-    if(incidentData !== undefined && params["page"] > 1 && data.status === "success"){
-      let log = incidentData["data"];
+    if(TaskData !== undefined && params["page"] > 1 && data.status === "success"){
+      let log = TaskData["data"];
       for(const i in data["data"]){
         log = pushArray(log,data["data"][i]);
       }
-      setIncidentData({
-        ...incidentData,
+      setTaskData({
+        ...TaskData,
         data:log
       });
     }else if(params["page"] === 1){
-      setIncidentData(data); 
+      setTaskData(data); 
     }
   };
 
@@ -94,7 +94,7 @@ const Dashboard = () => {
     setSearchInp(e.target.value);
   };
 
-  const searchIncidents = async () => {
+  const searchTasks = async () => {
     if (searchInp != null && (searchInp.length >= 1 || searchInp.length <= 0)) {
       setIsLoading(true);
       setParams({
@@ -109,14 +109,14 @@ const Dashboard = () => {
     loadData: loadData,
     setIsLoadMore:setIsLoadMore,
     setParams:setParams,
-    deleteEvent: deleteincident,
+    deleteEvent: deleteTask,
     setSearchInpData:setSearchInpData,
-    searchIncidents:searchIncidents,
+    searchTasks:searchTasks,
   };
 
   store.dispatch(
     headerUpdate({
-        title: "Incidents",
+        title: "Tasks",
     })
   );
 
@@ -133,28 +133,28 @@ const Dashboard = () => {
               </div>
             ):enumData !== undefined && enumData["status"] === "success"?(
               <>
-                <IncidentTopbar
+                <TaskTopbar
                   params={params}
                   setIsLoading={setIsLoading}
                   events={events}
                 />
                 <div className="-mt-1">
                   {isLoading === true ? (
-                    <IncidentLoader />
-                  ) : incidentData !== undefined &&
-                    incidentData["status"] === "success" ? (
-                      <IncidentItem 
-                        incidentData={incidentData} 
+                    <TaskLoader />
+                  ) : TaskData !== undefined &&
+                    TaskData["status"] === "success" ? (
+                      <TaskItem 
+                        TaskData={TaskData} 
                         enumData={enumData?.data}
                         isLoadMore={isLoadMore} 
                         params={params} 
                         events={events}
                       />
-                  ) : incidentData !== undefined &&
-                    incidentData["status"] === "error" &&
-                    incidentData["error"] === "404" ? (
-                        <EmptyData heading={"Incident not added"} btnTitle="Add Incident" btnAction={()=>{
-                            navigate('/incident');
+                  ) : TaskData !== undefined &&
+                    TaskData["status"] === "error" &&
+                    TaskData["error"] === "404" ? (
+                        <EmptyData heading={"Task not added"} btnTitle="Add Task" btnAction={()=>{
+                            navigate('/Task');
                         }} />
                   ) : (
                     <ErrorAPI500 />
@@ -171,8 +171,8 @@ const Dashboard = () => {
   );
 };
 
-const IncidentItem = (prop:any) => {
-  const incidentData = prop.incidentData;
+const TaskItem = (prop:any) => {
+  const TaskData = prop.TaskData;
   const enumData = prop.enumData;
   const events = prop.events;
   const isLoadMore = prop.isLoadMore;
@@ -185,46 +185,42 @@ const IncidentItem = (prop:any) => {
         <thead className="sticky left-0 top-0 z-[1]">
           <tr>
             <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left ps-8">SR. NO.</th>
-            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Reporter Name</th>
-            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Incident ID</th>
-            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Incident Type</th>
-            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Priority</th>
+            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Title</th>
             <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Status</th>
-            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Reported date</th>
+            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Created By</th>
             <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Action</th>
           </tr>
         </thead>
         <tbody>
-          {incidentData["data"].map((item: any, idx: any) => (
+          {TaskData["data"].map((item: any, idx: any) => (
             <tr key={idx}>
               <td className="text-left border-b border-gray-100 py-4 px-5 text-gray-300 text-300 ps-8">{idx+1}</td>
-              <td className="text-left border-b border-gray-100 py-4 px-5 text-gray-300 text-300">{item.reporter.first_name+" "+item.reporter.last_name}</td>
-              <td className="text-left border-b border-gray-100 py-4 px-5 text-gray-300 text-300">{item.incident_id}</td>
-              <td className="text-left border-b border-gray-100 py-4 px-5 text-gray-300 text-300">{item.incident_type?enumData["incident_type"][item.incident_type]["label"]:""}</td>
-              <td className="text-left border-b border-gray-100 py-4 px-5 text-gray-300 text-300">{item.priority?enumData["priority"][item.priority]["label"]:""}</td>
-              <td className="text-left border-b border-gray-100 py-4 px-5 text-gray-300 text-300">{item.status?enumData["status"][item.status]["label"]:""}</td>
-              <td className="text-left border-b border-gray-100 py-4 px-5 text-gray-300 text-300">{moment(item.reported_date).format("DD/MM/YYYY")}</td>
+              <td className="text-left border-b border-gray-100 py-4 px-5 text-gray-300 text-300">{item.title}</td>
               <td className="text-left border-b border-gray-100 py-4 px-5 text-gray-300 text-300">
-                {item.status !== "CLOSED"?
-                  <div className="flex justify-start items-center gap-1">
-                    <Button
-                      label="Edit"
-                      onClick={() => navigate('/incident/'+item.id)}
-                      size="small"
-                      variant="primary"
-                    />
-                    <div className="border-x border-gray-100 h-8"></div>
-                    <Button
-                      type="button"
-                      label="Delete"
-                      variant="outline"
-                      size="small"
-                      onClick={() => {
-                        events.deleteEvent(item.id);
-                      }}
-                    />
-                  </div>
+                {item.status?
+                  <Tag type={item.status === "To_Do"?"secondary":item.status === "IN_PROGRESS"?"blue":item.status === "DONE"?"success":"default"} text={enumData["status"][item.status]["label"]} />
                 :""}
+              </td>
+              <td className="text-left border-b border-gray-100 py-4 px-5 text-gray-300 text-300">{item.user.name}</td>
+              <td className="text-left border-b border-gray-100 py-4 px-5 text-gray-300 text-300">
+                <div className="flex justify-start items-center gap-1">
+                  <Button
+                    label="Edit"
+                    onClick={() => navigate('/task/'+item.id)}
+                    size="small"
+                    variant="primary"
+                  />
+                  <div className="border-x border-gray-100 h-8"></div>
+                  <Button
+                    type="button"
+                    label="Delete"
+                    variant="outline"
+                    size="small"
+                    onClick={() => {
+                      events.deleteEvent(item.id);
+                    }}
+                  />
+                </div>
               </td>
             </tr>
           ))}
@@ -265,7 +261,7 @@ const IncidentItem = (prop:any) => {
                     </svg>
                   </div>
                 ):(
-                  params['page'] < incidentData.meta.last_page?
+                  params['page'] < TaskData.meta.last_page?
                     <button
                       className="text-200 font-bold text-blue-500 border-b inline-block"
                       onClick={()=>{
@@ -288,26 +284,23 @@ const IncidentItem = (prop:any) => {
   );
 };
 
-const IncidentLoader = () => {
+const TaskLoader = () => {
   return (
     <div className="overflow-auto h-[calc(100vh-15.25rem)] bg-white">
       <table className="w-full">
         <thead className="sticky left-0 top-0">
           <tr>
             <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left ps-8">SR. NO.</th>
-            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Reporter Name</th>
-            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Incident ID</th>
-            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Incident Type</th>
-            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Priority</th>
+            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Title</th>
             <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Status</th>
-            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Reported date</th>
+            <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Created By</th>
             <th className="bg-gray-200 px-5 py-3 text-gray-700 text-300 font-bold text-left">Action</th>
           </tr>
         </thead>
         <tbody>
           {Array.from({ length: 7 }).map((idx: any) => (
             <tr key={idx}>
-              {Array.from({ length: 8 }).map((id: any) => (
+              {Array.from({ length: 5 }).map((id: any) => (
                 <td key={id} className="text-left border-b border-gray-100 py-4 px-5 text-gray-300 text-300 ps-8">
                   <div className="animate-pulse">
                     <div className="flex-1 space-y-6">

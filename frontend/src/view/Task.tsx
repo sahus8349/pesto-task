@@ -16,33 +16,31 @@ import {
   Dropdown,SelectOption,
 } from "../components/DropDown/DropDown";
 import {
-  fetchIncidentShow,
+  fetchTaskShow,
   fetchEnums,
   InputFiled,
-  saveIncident,
+  saveTask,
   validationSchema
-} from "./IncidentFunction";
+} from "./TaskFunction";
 import Spinner from "../components/Spinner/Spinner";
 import Textarea from "../components/TextArea/Textarea";
-import { CustomDateTimePicker } from "../components/DateTimePicker/DatePicker";
 import CustomLoader from "../components/Loader/CustomLoader";
+import TextInput from "../components/TextInput/TextInput";
 
-const Incident = () => {
+const Task = () => {
     let paramsData = useParams();
     paramsData = convertParamsToArr(paramsData);
 
     let formData: InputFiled = {
-        incident_details: "",
-        incident_type: "",
-        priority: "",
+        title: "",
+        description: "",
         status: "",
-        reported_date: ""
     };
 
     const [isFromSubmiting, setIsFromSubmiting] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [params] = useState<any>(paramsData);
-    const [incident, setIncident] = useState<FetchData>();
+    const [Task, setTask] = useState<FetchData>();
     const [enumOptions, setEnumOptions] = useState<any>();
     const [FormData, setFormData] = useState<InputFiled>(formData);
 
@@ -50,29 +48,23 @@ const Incident = () => {
 
     useEffect(() => {
         formData = {
-            incident_details: incident !== undefined && incident["data"] !== undefined
-                ? incident["data"].incident_details
+            title: Task !== undefined && Task["data"] !== undefined
+                ? Task["data"].title
                 : "",
-            incident_type: incident !== undefined && incident["data"] !== undefined
-                ? incident["data"].incident_type
+            description: Task !== undefined && Task["data"] !== undefined
+                ? Task["data"].description
                 : "",
-            priority: incident !== undefined && incident["data"] !== undefined
-                ? incident["data"].priority
-                : "",
-            status: incident !== undefined && incident["data"] !== undefined
-                ? incident["data"].status
-                : "",
-            reported_date: incident !== undefined && incident["data"] !== undefined
-                ? incident["data"].reported_date
-                : "",
+            status: Task !== undefined && Task["data"] !== undefined
+                ? Task["data"].status
+                : ""
         };
 
         setFormData(formData);
 
-        if(incident !== undefined){
+        if(Task !== undefined){
             setIsLoading(false);
         }
-    }, [incident]);
+    }, [Task]);
 
     useEffect(() => {
         if(isLoading === true){
@@ -83,16 +75,16 @@ const Incident = () => {
                     setEnumOptions(data.data);
 
                     if(params[0] !== 0 && params[0] !== 0){
-                        const data1 = await loadIncident();
+                        const data1 = await loadTask();
                         if(data1.status === "error" && data1.error === "abort"){}
                         else{
-                            setIncident(data1);
+                            setTask(data1);
                         }
                     }else{
-                        setIncident({ status: "success" });
+                        setTask({ status: "success" });
                     }
                 }else{
-                    setIncident({ status: "error" });
+                    setTask({ status: "error" });
                 }        
             };
         
@@ -100,8 +92,8 @@ const Incident = () => {
         }
     },[isLoading]);
 
-    const loadIncident = async () => {
-        return await fetchIncidentShow(params[0]);
+    const loadTask = async () => {
+        return await fetchTaskShow(params[0]);
     };
 
     const loadEnum = async () => {
@@ -109,9 +101,9 @@ const Incident = () => {
     }
 
     const submitHandler = async (values: InputFiled, { setErrors }: any) => {
-        await saveIncident({
+        await saveTask({
             setIsFromSubmiting: setIsFromSubmiting,
-            incidentData: incident,
+            TaskData: Task,
             formData: values,
             setErrorMessage: setErrors,
             navigate: navigate,
@@ -120,7 +112,7 @@ const Incident = () => {
 
     store.dispatch(
         headerUpdate({
-            title: "Add Incident",
+            title: "Add Task",
         })
     );
 
@@ -132,7 +124,7 @@ const Incident = () => {
               >
                 <CustomLoader />
               </div>
-            ): incident !== undefined && incident["status"] === "success" ? (
+            ): Task !== undefined && Task["status"] === "success" ? (
                 <Formik
                 initialValues={FormData}
                 validationSchema={validationSchema}
@@ -149,88 +141,56 @@ const Incident = () => {
                                         <div className="grid grid-cols-1 gap-8">
                                             <div className="">
                                                 <label className="text-400 font-medium text-gray-300 block mb-2">
-                                                    Incident
+                                                    Task
                                                     <span className="text-primary-100">*</span>
                                                 </label>
-                                                <Textarea
-                                                    name="incident_details"
+                                                <TextInput
+                                                    name="title"
                                                     onChange={(event) => {
                                                         inputChangeHandler(event.target.value, {
                                                             setValues: setValues,
-                                                            key: "incident_details",
+                                                            key: "title",
                                                             formData: values,
                                                         });
                                                     }}
-                                                    placeholder="Enter Incident"
-                                                    value={values["incident_details"]}
+                                                    placeholder="Enter Task"
+                                                    value={values["title"]}
                                                     className="rounded-lg"
                                                 />
                                                 <ErrorMessage
-                                                    name="incident_details"
+                                                    name="title"
                                                     component="div"
                                                     className="error text-error text-300 mt-1"
                                                 />
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-8 mt-7">
+                                        <div className="grid grid-cols-1 gap-8 mt-7">
                                             <div className="">
                                                 <label className="text-400 font-medium text-gray-300 block mb-2">
-                                                    Incident Type
+                                                    Description
                                                     <span className="text-primary-100">*</span>
                                                 </label>
-                                                <Dropdown
-                                                    name="incident_type"
-                                                    options={enumOptions !== undefined?enumOptions["incident_type_options"]:[]}
-                                                    type="box"
-                                                    onChange={(
-                                                    value: SelectOption | SelectOption[] | null,
-                                                    ) => {
-                                                        selectChangeHandler(value, {
+                                                <Textarea
+                                                    name="description"
+                                                    onChange={(event) => {
+                                                        inputChangeHandler(event.target.value, {
                                                             setValues: setValues,
-                                                            key: "incident_type",
+                                                            key: "description",
                                                             formData: values,
                                                         });
                                                     }}
-                                                    className="custom-dropdown"
-                                                    placeholder="Select"
-                                                    defaultValue={enumOptions !== undefined? enumOptions["incident_type"][values.incident_type]:{}}
+                                                    placeholder="Enter Task"
+                                                    value={values["description"]}
+                                                    className="rounded-lg"
                                                 />
                                                 <ErrorMessage
-                                                    name="incident_type"
-                                                    component="div"
-                                                    className="error text-error text-300 mt-1"
-                                                />
-                                            </div>
-                                            <div className="">
-                                                <label className="text-400 font-medium text-gray-300 block mb-2">
-                                                    Priority
-                                                    <span className="text-primary-100">*</span>
-                                                </label>
-                                                <Dropdown
-                                                    name="priority"
-                                                    options={enumOptions !== undefined?enumOptions["priority_options"]:[]}
-                                                    type="box"
-                                                    onChange={(
-                                                    value: SelectOption | SelectOption[] | null,
-                                                    ) => {
-                                                        selectChangeHandler(value, {
-                                                            setValues: setValues,
-                                                            key: "priority",
-                                                            formData: values,
-                                                        });
-                                                    }}
-                                                    className="custom-dropdown"
-                                                    placeholder="Select"
-                                                    defaultValue={enumOptions !== undefined? enumOptions["priority"][values.priority]:{}}
-                                                />
-                                                <ErrorMessage
-                                                    name="priority"
+                                                    name="description"
                                                     component="div"
                                                     className="error text-error text-300 mt-1"
                                                 />
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-8 mt-7">
+                                        <div className="grid grid-cols-1 gap-8 mt-7">
                                             <div className="">
                                                 <label className="text-400 font-medium text-gray-300 block mb-2">
                                                     Status
@@ -259,31 +219,6 @@ const Incident = () => {
                                                     className="error text-error text-300 mt-1"
                                                 />
                                             </div>
-                                            <div className="">
-                                                <label className="text-400 font-medium text-gray-300 block mb-2">
-                                                    Reported date
-                                                    <span className="text-primary-100">*</span>
-                                                </label>
-                                                <CustomDateTimePicker
-                                                    dateFormat="YYYY-MM-DD"
-                                                    name="reported_date"
-                                                    onChange={(date: Date | null,value: string | null) => {
-                                                        inputChangeHandler(value, {
-                                                            setValues: setValues,
-                                                            key: "reported_date",
-                                                            formData: values,
-                                                            date:date,
-                                                        });
-                                                    }}
-                                                    placeholder="Enter"
-                                                    selectedDate={values["reported_date"]}
-                                                />
-                                                <ErrorMessage
-                                                    name="reported_date"
-                                                    component="div"
-                                                    className="error text-error text-300 mt-1"
-                                                />
-                                            </div>
                                         </div>
                                         <div className="flex justify-end mt-7">
                                             <Button
@@ -292,7 +227,7 @@ const Incident = () => {
                                                     isFromSubmiting ? (
                                                         <Spinner labal="Processing..." />
                                                     ) : (
-                                                        "Save Incident"
+                                                        "Save Task"
                                                     )
                                                 }
                                                 isDisabled={isFromSubmiting}
@@ -313,4 +248,4 @@ const Incident = () => {
     );
 };
 
-export default Incident;
+export default Task;

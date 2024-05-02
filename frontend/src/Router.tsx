@@ -8,7 +8,7 @@ import {
 import App from "./App";
 import { Error404, Error500 } from "./components/Errors/Errors";
 import Dashboard from "./view/Dashboard";
-import Incident from "./view/Incident";
+import Task from "./view/Task";
 import Login from "./view/login/Login";
 import ForgotPassword from "./view/login/ForgotPassword";
 import ResetPassword from "./view/login/ResetPassword";
@@ -52,8 +52,8 @@ const Router = createBrowserRouter(
         />
         <Route
           index
-          path="Incident/*"
-          element={<Incident />}
+          path="task/*"
+          element={<Task />}
           errorElement={<Error500 />}
         />
         <Route

@@ -1,5 +1,5 @@
 import Button from "../components/Button/Button";
-import SearchIncidentForm from "./SearchIncidentForm";
+import SearchIncidentForm from "./SearchTaskForm";
 import { useNavigate } from "react-router-dom";
 
 const IncidentTopbar = (prop: any) => {
@@ -17,8 +17,8 @@ const IncidentTopbar = (prop: any) => {
           <div className="md:border-x sm:border-y border-gray-100 md:h-8 sm:w-full"></div>
           <div>
           <Button
-            label="Add Incident"
-            onClick={() => navigate('/incident')}
+            label="Add Task"
+            onClick={() => navigate('/task')}
             size="medium"
             variant="primary"
           />

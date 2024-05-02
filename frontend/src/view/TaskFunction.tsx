@@ -7,27 +7,23 @@ import {
 } from "../CommonFunctions";
 
 const controller = new AbortController();
-let incidentController:any;
+let TaskController:any;
 let enumsController:any;
-let incidentShowController:any;
+let TaskShowController:any;
 
 export interface InputFiled {
-  incident_details: any;
-  incident_type: any;
-  priority: any;
+  title: any;
+  description: any;
   status: any;
-  reported_date: any;
 }
 
 export const ErrorMessages: InputFiled = {
-  incident_details: "",
-  incident_type: "",
-  priority: "",
+  title: "",
+  description: "",
   status: "",
-  reported_date: ""
 };
 
-export async function fetchIncident(params:any) {
+export async function fetchTask(params:any) {
   let queryString = "";
   queryString = params[0] !== undefined ? "search=" + params[0] : "";
   queryString +=
@@ -39,22 +35,22 @@ export async function fetchIncident(params:any) {
   queryString +=
     params["page"] !== undefined ? "page=" + params["page"] : "";
 
-  if(incidentController){
+  if(TaskController){
     const reason = new DOMException('signal timed out', 'TimeoutError');
-    await incidentController.abort(reason);
+    await TaskController.abort(reason);
   }
 
-  incidentController = new AbortController();
+  TaskController = new AbortController();
 
   return await callFetch({
     url:
       import.meta.env.VITE_API_URL +
-      "incidents?" + queryString,
+      "tasks?" + queryString,
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    controller: incidentController,
+    controller: TaskController,
     callback: async (json) => {
       return json;
     },
@@ -72,7 +68,7 @@ export async function fetchEnums() {
   return await callFetch({
     url:
       import.meta.env.VITE_API_URL +
-      "incidentEnums",
+      "tasksEnums",
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -84,24 +80,24 @@ export async function fetchEnums() {
   });
 }
 
-export async function fetchIncidentShow(incident_id:number) {
-  if (incident_id !== undefined && incident_id != 0) {
-    if(incidentShowController){
+export async function fetchTaskShow(task_id:number) {
+  if (task_id !== undefined && task_id != 0) {
+    if(TaskShowController){
       const reason = new DOMException('signal timed out', 'TimeoutError');
-      await incidentShowController.abort(reason);
+      await TaskShowController.abort(reason);
     }
 
-    incidentShowController = new AbortController();
+    TaskShowController = new AbortController();
 
     return await callFetch({
       url:
         import.meta.env.VITE_API_URL +
-        "incidents/" + incident_id,
+        "tasks/" + task_id,
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      controller: incidentShowController,
+      controller: TaskShowController,
       callback: async (json) => {
         return json;
       },
@@ -111,29 +107,29 @@ export async function fetchIncidentShow(incident_id:number) {
   return { status: "success" };
 }
 
-export const confirmDeleteIncident = async (
+export const confirmDeleteTask = async (
   id: BigInteger,
-  setIncidentsData: any,
-  incidentsData:any,
+  setTasksData: any,
+  TasksData:any,
 ) => {
   await showConfirm({
-    title: "Are you sure you want to delete this incident?",
-    message: "The incident information will be deleted and can’t be undone. Click Yes, if you still want to continue.",
+    title: "Are you sure you want to delete this task?",
+    message: "The task information will be deleted and can’t be undone. Click Yes, if you still want to continue.",
     type: "warning",
     confirm: async () => {
-      await deleteIncident(id, setIncidentsData,incidentsData);
+      await deleteTask(id, setTasksData,TasksData);
     },
     cancel: () => {},
   });
 };
 
-const deleteIncident = async (
+const deleteTask = async (
   id: BigInteger,
-  setIncidentsData: any,
-  incidentsData:any
+  setTasksData: any,
+  TasksData:any
 ) => {
   return await callFetch({
-    url: import.meta.env.VITE_API_URL + "incidents/" + id,
+    url: import.meta.env.VITE_API_URL + "tasks/" + id,
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -142,9 +138,9 @@ const deleteIncident = async (
     callback: async (json) => {
       if (json.status == "success") {
         showToastAlert(json.message, 1);
-        setIncidentsData({
-          ...incidentsData,
-          data:unsetAssocciativeArray(incidentsData["data"], "id", id)
+        setTasksData({
+          ...TasksData,
+          data:unsetAssocciativeArray(TasksData["data"], "id", id)
         });
       } else {
         showToastAlert(json.message);
@@ -155,21 +151,17 @@ const deleteIncident = async (
 };
 
 export const validationSchema = Yup.object({
-    incident_details: Yup.string()
-    .required("Incident is required")
+    title: Yup.string()
+    .required("Task is required")
     .min(3, "Too Short!")
     .max(254, "Too Long!"),
-    incident_type: Yup.string()
-    .required("Incident type is required"),
-    priority: Yup.string()
-    .required("Priority is required"),
+    description: Yup.string()
+    .required("Task type is required"),
     status: Yup.string()
     .required("Status is required"),
-    reported_date: Yup.string()
-    .required("Reported date is required"),
 });
 
-export const saveIncident = async (props: any) => {
+export const saveTask = async (props: any) => {
   props.setIsFromSubmiting(true);
   const errorMessage = ErrorMessages;
 
@@ -177,10 +169,10 @@ export const saveIncident = async (props: any) => {
     errorMessage[i as keyof InputFiled] = "";
   }
 
-  let url = import.meta.env.VITE_API_URL + "incidents";
+  let url = import.meta.env.VITE_API_URL + "tasks";
   url =
-    props.incidentData["data"] !== undefined
-      ? url + "/" + props.incidentData["data"].id
+    props.TaskData["data"] !== undefined
+      ? url + "/" + props.TaskData["data"].id
       : url;
 
   const urlencoded = new URLSearchParams();
@@ -190,7 +182,7 @@ export const saveIncident = async (props: any) => {
 
   return await callFetch({
     url: url,
-    method: props.incidentData["data"] !== undefined ? "PUT" : "POST",
+    method: props.TaskData["data"] !== undefined ? "PUT" : "POST",
     body: urlencoded,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",

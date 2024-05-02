@@ -11,7 +11,7 @@ interface AuthenticateProps {
 }
 
 export const Authenticate = ({ children }: AuthenticateProps) => {
-  const [cookies] = useCookies(['incident_session_token']);
+  const [cookies] = useCookies(['task_session_token']);
 
   const [authenticateData,setAuthenticateData] = useState();
 
@@ -24,7 +24,7 @@ export const Authenticate = ({ children }: AuthenticateProps) => {
     window.location.href = "/login";
   }
 
-  const assessToken = cookies["incident_session_token"] !== undefined && cookies["incident_session_token"] !== "" && cookies["incident_session_token"] !== null?cookies["incident_session_token"]:"";
+  const assessToken = cookies["task_session_token"] !== undefined && cookies["task_session_token"] !== "" && cookies["task_session_token"] !== null?cookies["task_session_token"]:"";
   if(assessToken === "" && pathname[1] !== "login" && pathname[1] !== "forgot-password" && pathname[1] !== "resetpassword" && pathname[1] !== "registration"){
     doLogin();
   }
@@ -53,7 +53,7 @@ export const Authenticate = ({ children }: AuthenticateProps) => {
       callback: async (json: any) => {
         store.dispatch(
           updateUser({
-            name: json["data"]["first_name"]+" "+json["data"]["last_name"],
+            name: json["data"]["name"],
           })
         );
         setAuthenticateData(json);

@@ -16,7 +16,7 @@ const SearchIncidentForm = (prop:any) => {
         <SearchInput>
             <input 
               type='text' 
-              placeholder='Search Form' 
+              placeholder='Search Task' 
               className='outline-none w-full bg-white border border-gray-100 ps-9 pe-4 py-2.5 text-300 font-normal 
                 rounded-md text-gray-300 placeholder:font-light
             focus:border-secondary-100 focus:shadow-200

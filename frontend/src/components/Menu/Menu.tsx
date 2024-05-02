@@ -119,7 +119,7 @@ const Menu: React.FC<MenuProps> = ({
             alt="logo"
             className="w-auto max-w-full h-5 object-cover object-left-top"
           />
-          <Typography variant="h3" className="">Incident</Typography>
+          <Typography variant="h3" className="">Task</Typography>
         </div>
         <div className="mt-5 overflow-auto md:h-[calc(100vh-10rem)]">
           {navigationItems.map(({ icon, label, link}) => (

@@ -18,21 +18,10 @@ export interface InputFiled {
 }
 
 export interface RegistrationInputFiled {
-  first_name: any;
-  last_name: any;
+  name: any;
   email: any;
-  address: any;
-  country: any;
-  state: any;
-  city: any;
-  pincode: any;
-  country_code: any;
-  mobile: any;
-  fax: any;
-  phone: any;
   password: any;
   password_confirmation: any;
-  user_type: any;
 }
 
 export interface InputAuthenticatFiled {
@@ -48,21 +37,10 @@ export const ErrorMessages: InputFiled = {
 };
 
 export const RegistrationErrorMessages: RegistrationInputFiled = {
-  first_name: "", 
-  last_name: "", 
+  name: "", 
   email: "", 
-  address: "", 
-  country: "", 
-  state: "", 
-  city: "", 
-  pincode: "", 
-  country_code: "", 
-  mobile: "", 
-  fax: "", 
-  phone: "", 
   password: "", 
   password_confirmation: "",
-  user_type: ""
 };
 
 export const AuthenticatErrorMessages: InputAuthenticatFiled = {
@@ -78,32 +56,10 @@ export const validationSchema = Yup.object({
 });
 
 export const registrationValidationSchema = Yup.object({
-  first_name: Yup.string().min(3).max(254)
+  name: Yup.string().min(3).max(254)
     .required("First name is required"),
-  last_name: Yup.string().min(3).max(254)
-    .required("Last name is required"),
-  address: Yup.string().min(10).max(254)
-    .required("Address is required"),
   email: Yup.string().email("Please enter a valid email address")
     .required("Email address is required"),
-  country: Yup.string()
-    .required("Country is required"),
-  state: Yup.string()
-    .required("State is required"),
-  city: Yup.string()
-    .required("City is required"),
-  pincode: Yup.string()
-    .required("Pincode is required").matches(/^\d{5,6}$/,'Please enter a valid mobile number'),
-  country_code: Yup.string()
-    .required("Contry dail code is required"),
-  mobile: Yup.string()
-    .required("Mobile number is required").matches(/^\d{10}$/,'Please enter a valid mobile number'),
-  fax: Yup.string()
-    .required("Fax number is required").matches(/^\d{10}$/,'Please enter a valid fax number'),
-  user_type: Yup.string()
-    .required("User type is required"),
-  phone: Yup.string()
-    .required("Phone is required").matches(/^\d{10}$/,'Please enter a valid phone number'),
   password: Yup.string().min(8, "Too Short!")
     .required("Password is required"),
   password_confirmation: Yup.string()
@@ -209,7 +165,7 @@ export const doLogin = async (props: any) => {
       if (json.status == "success") {
         let expires = new Date();
         expires.setTime(expires.getTime() + (60*60*1000))
-        props.setCookie('incident_session_token', json.data.token, { path: '/',  expires});
+        props.setCookie('task_session_token', json.data.token, { path: '/',  expires});
 
         store.dispatch(
           tokenUpdate({
@@ -276,7 +232,7 @@ export const doRegistration = async (props: any) => {
       if (json.status === "success") {
         let expires = new Date();
         expires.setTime(expires.getTime() + (60*60*1000))
-        props.setCookie('incident_session_token', json.data.token, { path: '/',  expires});
+        props.setCookie('task_session_token', json.data.token, { path: '/',  expires});
 
         store.dispatch(
           tokenUpdate({
