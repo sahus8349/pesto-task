@@ -34,19 +34,8 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'address' => ['required', 'string', 'max:255'],
-            'country' => ['required', 'string', 'max:255'],
-            'state' => ['required', 'string', 'max:255'],
-            'city' => ['required', 'string', 'max:255'],
-            'pincode' => ['required', 'numeric'],
-            'country_code' => ['required', 'string'],
-            'fax' => ['required', 'numeric'],
-            'phone' => ['required', 'numeric'],
-            'user_type' => ['required', 'string'],
+            'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'mobile' => ['required', 'numeric', 'unique:users'],
             'password' => ['required', 'confirmed',Rules\Password::defaults()],
             'reCaptchaToken' => ['required',new ReCaptchaV3('Login')]
         ]);
@@ -63,18 +52,7 @@ class RegisterController extends Controller
         return User::create([
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'first_name' => $data['first_name'],
-            'last_name' => $data['last_name'],
-            'address' => $data['address'],
-            'country' => $data['country'],
-            'state' => $data['state'],
-            'city' => $data['city'],
-            'pincode' => $data['pincode'],
-            'country_code' => $data['country_code'],
-            'fax' => $data['fax'],
-            'phone' => $data['phone'],
-            'user_type' => $data['user_type'],
-            'mobile' => $data['mobile'],
+            'name' => $data['name'],
         ]);
     }
 
@@ -90,7 +68,7 @@ class RegisterController extends Controller
         
         event(new Registered($user = $this->create($request->all())));
 
-        $token =  $user->createToken('incident')->accessToken;
+        $token =  $user->createToken('task')->accessToken;
 
         if (!empty($user->id)) {
             return response()->json(['status'=>'success','data' => ['token'=>$token]], 200);

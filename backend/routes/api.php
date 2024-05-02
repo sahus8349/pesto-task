@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\AuthenticateController;
-use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\TaskController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,8 +25,8 @@ use App\Http\Controllers\IncidentController;
 Route::group(['middleware' => 'auth:api'],function(){
     Route::get('authenticate', [AuthenticateController::class,"authenticate"]);
     Route::get('logout', [AuthController::class,"logout"]);
-    Route::apiResource('incidents', IncidentController::class);
-    Route::get('incidentEnums', [IncidentController::class,"enums"]);
+    Route::apiResource('tasks', TaskController::class);
+    Route::get('tasksEnums', [TaskController::class,"enums"]);
 });
 
 Route::post('register', [RegisterController::class,"register"]);

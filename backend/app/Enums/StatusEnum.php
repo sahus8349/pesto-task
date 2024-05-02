@@ -4,9 +4,9 @@ namespace App\Enums;
 
 enum StatusEnum: string
 {
-    case OPEN = "Open";
+    case To_Do = "To Do";
     case IN_PROGRESS = "In progress";
-    case CLOSED = "Closed";
+    case DONE = "Done";
 
     public static function getOptions(): array
     {

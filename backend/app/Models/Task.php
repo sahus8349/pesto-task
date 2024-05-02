@@ -8,20 +8,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\User;
 
-class Incident extends Model
+class Task extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasFactory;
 
-    protected $table = "incident";
+    protected $table = "tasks";
 
     protected $fillable = [
-        "incident_id",
-        "incident_details",
-        "incident_type",
-        "priority",
+        "title",
+        "description",
         "status",
-        "reporter_id",
-        "reported_date",
+        "created_by_id",
     ];
 
     protected $casts = [
@@ -29,8 +26,8 @@ class Incident extends Model
        'updated_at' => 'datetime:d, M Y',
     ];
 
-    public function reporter(): HasOne 
+    public function user(): HasOne 
     {
-        return $this->hasOne(User::class,'id','reporter_id');
+        return $this->hasOne(User::class,'id','created_by_id');
     }
 }
